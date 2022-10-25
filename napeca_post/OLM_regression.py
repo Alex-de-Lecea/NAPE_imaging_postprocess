@@ -10,6 +10,7 @@ practice_inputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/
 practice_outputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/VJ_OFCVTA_7_260_D6_neuropil_corrected_signals_15_50_beta_0.8.csv')
 frequency = 5
 cutoff = 2 #number of seconds after stimulus we wish to see the fluoresence. Higher cutoff might produce less error. 
+cell_number = 3
 
 #load data
 read_data = pd.read_csv(practice_inputs)
@@ -31,7 +32,6 @@ regress_mat = predictor_matrix_gen.predic_mat_gen(read_data, size, predic_mat, c
 predic_mat_size = np.shape(predic_mat)
 
 #Linear regression 
-olsmod = sm.OLS(output_data[0], regress_mat)
+olsmod = sm.OLS(output_data[cell_number], regress_mat)
 olsres = olsmod.fit()
 ypred = olsres.predict(regress_mat)
-

@@ -15,7 +15,6 @@ def Gcamp_decay(time, tau):
     output = (1/tau) * np.exp(-time/tau)
     return output
 
-
 def predic_mat_gen(read_data, size, predic_mat, cutoff, time_interval):
     for i in range(size[0]):
         if read_data[i][0] == "plus":
