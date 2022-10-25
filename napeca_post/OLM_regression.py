@@ -9,7 +9,7 @@ import predictor_matrix_gen
 practice_inputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/event_times_VJ_OFCVTA_7_260_D6_trained.csv')
 practice_outputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/VJ_OFCVTA_7_260_D6_neuropil_corrected_signals_15_50_beta_0.8.csv')
 frequency = 5
-cutoff = 2 #number of seconds after stimulus we wish to see the fluoresence. Higher cutoff might produce less error. 
+cutoff = 8 #number of seconds after stimulus we wish to see the fluoresence. Higher cutoff will produce less error. 
 cell_number = 3
 
 #load data

@@ -15,6 +15,7 @@ def Gcamp_decay(time, tau):
     output = (1/tau) * np.exp(-time/tau)
     return output
 
+# in the future you will want to add a limiter to how much j goes above just for index bound reasons
 def predic_mat_gen(read_data, size, predic_mat, cutoff, time_interval):
     for i in range(size[0]):
         if read_data[i][0] == "plus":
