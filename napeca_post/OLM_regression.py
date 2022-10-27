@@ -25,13 +25,23 @@ time_interval = round(1/(frequency), 1)
 output_size = np.shape(output_data)
 cutoff = cutoff * frequency #number of samples we wish to continue seeing the gcamp after the initial stimulus (cutoff of 10 samples at 5hz is 2 seconds)
 
+
 #initialize predictor matrix
 predic_mat = predictor_matrix_gen.predic_mat_init(output_size)
 regress_mat = predictor_matrix_gen.predic_mat_gen(read_data, size, predic_mat, cutoff, time_interval)
 
 predic_mat_size = np.shape(predic_mat)
 
+min = predictor_matrix_gen.find_min(output_data, output_size, cell_number)
+moving_average_output = predictor_matrix_gen.moving_average(output_data[cell_number], 3)
+moving_average_pos = predictor_matrix_gen.moving_average(regress_mat[0], 10)
+moving_average_pos = predictor_matrix_gen.moving_average(regress_mat[1], 10)
+
 #Linear regression 
+regress_mat = regress_mat 
+output_data[cell_number] = output_data[cell_number]
 olsmod = sm.OLS(output_data[cell_number], regress_mat)
 olsres = olsmod.fit()
 ypred = olsres.predict(regress_mat)
+
+print(olsres.summary())
