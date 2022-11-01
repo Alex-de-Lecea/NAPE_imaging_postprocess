@@ -12,7 +12,7 @@ import plotly.graph_objects as go
 practice_inputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/event_times_VJ_OFCVTA_7_260_D6_trained.csv')
 practice_outputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/VJ_OFCVTA_7_260_D6_neuropil_corrected_signals_15_50_beta_0.8.csv')
 frequency = 5
-cutoff = 8 #number of seconds after stimulus we wish to see the fluoresence. Higher cutoff will produce less error. 
+cutoff = 20 #number of seconds after stimulus we wish to see the fluoresence. Higher cutoff will produce less error. 
 cell_number = 3
 
 #load data
@@ -56,35 +56,37 @@ neg_stim_arr = np.transpose(regress_mat)[1]
 #array for time (samples) which we use for our x-axis
 x = np.array(range(0, predic_mat_size[0]))
 
-fig = make_subplots(rows=1, cols=2,
-                    shared_yaxes=True,
-                    horizontal_spacing=0.02)
+# fig = make_subplots(rows=1, cols=2,
+#                     shared_yaxes=True,
+#                     horizontal_spacing=0.02)
 
-fig.add_trace(go.Scattergl(x=x, y=output_data[cell_number], mode='markers'), row=1, col=1)
-fig.add_trace(go.Scattergl(x=x, y=ypred, mode='markers'), row=1, col=2)
+# fig.add_trace(go.Scattergl(x=x, y=output_data[cell_number], mode='markers'), row=1, col=1)
+# fig.add_trace(go.Scattergl(x=x, y=ypred, mode='markers'), row=1, col=2)
 
-fig.update_layout(height=600, width=1200)
-fig.update_xaxes(matches='x')
+# fig.update_layout(height=600, width=1200)
+# fig.update_xaxes(matches='x')
 
-fig.show()
+# fig.show()
 
-# fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4)
-# plt.subplot(2,2,1)
-# plt.xticks(np.arange(0, len(x) + 1)[::5000], x[::5000])
-# plt.plot(x, pos_stim_arr)
-# plt.title('CS+ Expected Fluoresence')
+fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4)
+plt.subplot(2,2,1)
+plt.xticks(np.arange(0, len(x) + 1)[::5000], x[::5000])
+plt.plot(x, pos_stim_arr)
+plt.title('CS+ Expected Fluoresence')
 
-# plt.subplot(2,2,3)
-# plt.xticks(np.arange(0, len(x) + 1)[::5000], x[::5000])
-# plt.plot(x, neg_stim_arr)
-# plt.title('CS- Expected Fluoresence')
+plt.subplot(2,2,3)
+plt.xticks(np.arange(0, len(x) + 1)[::5000], x[::5000])
+plt.plot(x, neg_stim_arr)
+plt.title('CS- Expected Fluoresence')
 
-# plt.subplot(2,2,2)
-# plt.xticks(np.arange(0, len(x) + 1)[::5000], x[::5000])
-# plt.plot(x, output_data[cell_number])
-# plt.title('Actual Fluoresence')
+plt.subplot(2,2,2)
+plt.xticks(np.arange(0, len(x) + 1)[::5000], x[::5000])
+plt.plot(x, moving_average_output)
+plt.title('Actual Fluoresence')
 
-# plt.subplot(2,2,4)
-# plt.xticks(np.arange(0, len(x) + 1)[::5000], x[::5000])
-# plt.plot(x, ypred)
-# plt.title('Predicted Fluoresence')
+plt.subplot(2,2,4)
+plt.xticks(np.arange(0, len(x) + 1)[::5000], x[::5000])
+plt.plot(x, ypred)
+plt.title('Predicted Fluoresence')
+
+plt.show()

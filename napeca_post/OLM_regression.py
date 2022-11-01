@@ -9,7 +9,7 @@ import predictor_matrix_gen
 practice_inputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/event_times_VJ_OFCVTA_7_260_D6_trained.csv')
 practice_outputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/VJ_OFCVTA_7_260_D6_neuropil_corrected_signals_15_50_beta_0.8.csv')
 frequency = 5
-cutoff = 8 #number of seconds after stimulus we wish to see the fluoresence. Higher cutoff will produce less error. 
+cutoff = 20 #number of seconds after stimulus we wish to see the fluoresence. Higher cutoff will produce less error. 
 cell_number = 3
 
 #load data
@@ -38,9 +38,9 @@ moving_average_pos = predictor_matrix_gen.moving_average(regress_mat[0], 10)
 moving_average_pos = predictor_matrix_gen.moving_average(regress_mat[1], 10)
 
 #Linear regression 
-regress_mat = regress_mat 
+regress_mat = regress_mat
 output_data[cell_number] = output_data[cell_number]
-olsmod = sm.OLS(output_data[cell_number], regress_mat)
+olsmod = sm.OLS(moving_average_output, regress_mat)
 olsres = olsmod.fit()
 ypred = olsres.predict(regress_mat)
 
