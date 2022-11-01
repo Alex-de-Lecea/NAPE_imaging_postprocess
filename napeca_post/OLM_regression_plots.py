@@ -44,7 +44,7 @@ ypred = olsres.predict(regress_mat)
 
 # moving averages
 min = predictor_matrix_gen.find_min(output_data, output_size, cell_number)
-moving_average_output = predictor_matrix_gen.moving_average(output_data[cell_number], 10)
+moving_average_output = predictor_matrix_gen.moving_average(output_data[cell_number], 20)
 moving_average_pos = predictor_matrix_gen.moving_average(regress_mat[0], 10)
 moving_average_pos = predictor_matrix_gen.moving_average(regress_mat[1], 10)
 moving_average_ypred = predictor_matrix_gen.moving_average(ypred, 10)
@@ -81,7 +81,7 @@ plt.title('CS- Expected Fluoresence')
 
 plt.subplot(2,2,2)
 plt.xticks(np.arange(0, len(x) + 1)[::5000], x[::5000])
-plt.plot(x, moving_average_output)
+plt.plot(x, (moving_average_output - min))
 plt.title('Actual Fluoresence')
 
 plt.subplot(2,2,4)

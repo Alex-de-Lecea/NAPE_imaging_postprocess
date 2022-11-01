@@ -32,15 +32,15 @@ regress_mat = predictor_matrix_gen.predic_mat_gen(read_data, size, predic_mat, c
 
 predic_mat_size = np.shape(predic_mat)
 
-min = predictor_matrix_gen.find_min(output_data, output_size, cell_number)
-moving_average_output = predictor_matrix_gen.moving_average(output_data[cell_number], 3)
-moving_average_pos = predictor_matrix_gen.moving_average(regress_mat[0], 10)
-moving_average_pos = predictor_matrix_gen.moving_average(regress_mat[1], 10)
+moving_average_output = predictor_matrix_gen.moving_average(output_data[cell_number], 20)
+moving_average_pos = predictor_matrix_gen.moving_average(regress_mat[0], 20)
+moving_average_pos = predictor_matrix_gen.moving_average(regress_mat[1], 20)
+min = np.amin(moving_average_output)
 
 #Linear regression 
 regress_mat = regress_mat
 output_data[cell_number] = output_data[cell_number]
-olsmod = sm.OLS(moving_average_output, regress_mat)
+olsmod = sm.OLS((moving_average_output - min), regress_mat)
 olsres = olsmod.fit()
 ypred = olsres.predict(regress_mat)
 
