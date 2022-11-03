@@ -31,7 +31,7 @@ cutoff = cutoff * frequency #number of samples we wish to continue seeing the gc
 
 #initialize predictor matrix
 predic_mat = predictor_matrix_gen.predic_mat_init(output_size)
-regress_mat = predictor_matrix_gen.predic_mat_gen(read_data, size, predic_mat, cutoff, time_interval)
+regress_mat = predictor_matrix_gen.predic_mat_gen(read_data, size, predic_mat, cutoff, time_interval, frequency)
 
 predic_mat_size = np.shape(predic_mat)
 

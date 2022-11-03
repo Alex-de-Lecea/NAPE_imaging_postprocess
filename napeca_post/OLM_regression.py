@@ -14,6 +14,7 @@ practice_outputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6
 frequency = 5
 cutoff = 20 #number of seconds after stimulus we wish to see the fluoresence. Higher cutoff will produce less error. 
 cell_number = 3
+lag_limit = 100
 
 #load data
 read_data = pd.read_csv(practice_inputs)
@@ -30,8 +31,9 @@ cutoff = cutoff * frequency #number of samples we wish to continue seeing the gc
 
 
 #initialize predictor matrix
-predic_mat = predictor_matrix_gen.predic_mat_init(output_size)
-regress_mat = predictor_matrix_gen.predic_mat_gen(read_data, size, predic_mat, cutoff, time_interval)
+predic_mat = predictor_matrix_gen.predic_mat_init(output_size, lag_limit)
+regress_mat = predictor_matrix_gen.predic_mat_gen(read_data, size, predic_mat, cutoff, time_interval, frequency, lag_limit)
+regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary(read_data, size, predic_mat, cutoff, time_interval, lag_limit)
 
 predic_mat_size = np.shape(predic_mat)
 
@@ -42,27 +44,26 @@ moving_average_pos = predictor_matrix_gen.moving_average(regress_mat[1], 20)
 min = np.amin(moving_average_output)
 
 #Linear regression 
-regress_mat = regress_mat
-output_data[cell_number] = output_data[cell_number]
-olsmod = sm.OLS((moving_average_output - min), regress_mat)
+olsmod = sm.OLS((moving_average_output - min), regress_mat_binary)
 olsres = olsmod.fit()
-ypred = olsres.predict(regress_mat)
+ypred = olsres.predict(regress_mat_binary)
 
 #plot creation with plotly
 x = np.array(range(0, predic_mat_size[0]))
 pos_stim_arr = np.transpose(regress_mat)[0]
-neg_stim_arr = np.transpose(regress_mat)[1]
+neg_stim_arr = np.transpose(regress_mat)[lag_limit]
 
-fig = make_subplots(rows=1, cols=2,
-                    subplot_titles = ("Moving Average of Actual Fluoresence", "Predicted Fluoresence"),
+fig = make_subplots(rows=4, cols=1,
+                    subplot_titles = ("CS+ Predicted", "CS- Predicted", "Moving Average of Actual Fluoresence", "Predicted Fluoresence"),
                     shared_yaxes=True,
                     horizontal_spacing=0.02)
 
-fig['layout']['xaxis']['title'] = "Sample number"
-fig['layout']['xaxis2']['title'] = "Sample number"
+fig['layout']['xaxis4']['title'] = "Sample number"
 fig['layout']['yaxis']['title'] = "Fluoresence"
-fig.add_trace(go.Scattergl(x=x, y=(moving_average_output - min), mode='lines'), row=1, col=1)
-fig.add_trace(go.Scattergl(x=x, y=ypred, mode='lines'), row=1, col=2)
+fig.add_trace(go.Scattergl(x=x, y=(pos_stim_arr), mode='lines'), row=1, col=1)
+fig.add_trace(go.Scattergl(x=x, y=(neg_stim_arr), mode='lines'), row=2, col=1)
+fig.add_trace(go.Scattergl(x=x, y=(moving_average_output - min), mode='lines'), row=3, col=1)
+fig.add_trace(go.Scattergl(x=x, y=ypred, mode='lines'), row=4, col=1)
 
 fig.update_layout(height=600, width=1200)
 fig.update_xaxes(matches='x')
