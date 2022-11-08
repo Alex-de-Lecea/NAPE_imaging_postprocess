@@ -14,7 +14,7 @@ practice_outputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6
 frequency = 5
 cutoff = 20 #number of seconds after stimulus we wish to see the fluoresence. Higher cutoff will produce less error. 
 cell_number = 3
-lag_limit = 100
+lag_limit = 10
 
 #load data
 read_data = pd.read_csv(practice_inputs)
@@ -32,8 +32,8 @@ cutoff = cutoff * frequency #number of samples we wish to continue seeing the gc
 
 #initialize predictor matrix
 predic_mat = predictor_matrix_gen.predic_mat_init(output_size, lag_limit)
-regress_mat = predictor_matrix_gen.predic_mat_gen(read_data, size, predic_mat, cutoff, time_interval, frequency, lag_limit)
-regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary(read_data, size, predic_mat, cutoff, time_interval, lag_limit)
+regress_mat = predictor_matrix_gen.predic_mat_gen(read_data, size, predic_mat, time_interval, frequency, lag_limit)
+regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary(read_data, size, predic_mat, cutoff, frequency, lag_limit)
 
 predic_mat_size = np.shape(predic_mat)
 
