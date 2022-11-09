@@ -90,14 +90,3 @@ plt.plot(x, ypred)
 plt.title('Predicted Fluoresence')
 
 plt.show()
-
-# the following should be the reduced rank regression solution
-regress_mat_binary_transpose = np.transpose(regress_mat_binary)
-some_inverse_thing = np.linalg.inv(np.dot(regress_mat_binary_transpose, regress_mat_binary))
-ordinary_lin_reg = np.dot(some_inverse_thing, np.transpose(regress_mat_binary)) 
-ordinary_lin_reg = np.dot(ordinary_lin_reg, output_data)
-U, D, VT = np.linalg.svd(np.dot(regress_mat_binary,ordinary_lin_reg))
-rrr_sol = np.dot(ordinary_lin_reg,np.transpose(VT),VT)
-ypred = np.dot(rrr_sol, regress_mat_binary)
-print(rrr_sol)
-print(ypred)
