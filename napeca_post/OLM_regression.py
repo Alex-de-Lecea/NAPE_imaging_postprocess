@@ -52,17 +52,8 @@ olsmod = sm.OLS((moving_average_output - min), regress_mat_binary)
 olsres = olsmod.fit()
 ypred = olsres.predict(regress_mat_binary)
 
-#Reduced Rank Regression solution (not the most computationally efficient approach but it is the direct mathematical derivation))
-#Not sure if we want to apply the regression to the normalized, moving average data, or the raw output. Same consideration when plotting.
-#RRR is a multivariable regression performed on the output data from all of the cells and generates coefficients for each cell. This is different to the
-#1-D linear regression where we simply fit the output of one cell
-regress_mat_binary_transpose = np.transpose(regress_mat_binary)
-reg_tp_reg_inv = np.linalg.inv(np.dot(regress_mat_binary_transpose, regress_mat_binary))
-ordinary_lin_reg = np.dot(reg_tp_reg_inv, np.transpose(regress_mat_binary)) 
-ordinary_lin_reg = np.dot(ordinary_lin_reg, np.transpose(moving_average_output_total)) # the calculations up to this point have been for the OLS which we will modify to get the RRR
-U, D, VT = np.linalg.svd(np.dot(regress_mat_binary,ordinary_lin_reg)) #Singular Value Decomposition 
-rrr_sol = np.dot(ordinary_lin_reg,np.transpose(VT))
-rrr_sol = np.dot(rrr_sol, VT) #final solution, matrix containing the coefficients for each cell
+#Reduced Rank Regression
+rrr_sol = predictor_matrix_gen.rrr_formula(regress_mat_binary, moving_average_output_total, 20)
 
 #plot creation with plotly (we can only plot one given cell and its predicted output at a time)
 x = np.array(range(0, predic_mat_size[0]))
@@ -88,6 +79,8 @@ fig.update_layout(height=600, width=1200)
 fig.update_xaxes(matches='x')
 
 #showing the output
-fig.show()
-print(olsres.summary())
+#fig.show()
+#print(olsres.summary())
 print(rrr_sol) #Each column corresponds to the coefficients of the given cell
+# print(np.corrcoef(rrr_ypred, moving_average_output_total[cell_number]))
+# print(np.corrcoef(ypred, moving_average_output_total[cell_number]))

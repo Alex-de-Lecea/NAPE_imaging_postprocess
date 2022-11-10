@@ -88,4 +88,20 @@ def predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, lag_lim
                 if (k+lick_samp) < predic_mat_size[0]:
                     predic_mat_binary[lick_samp+k][2*lag_limit+k] = 1
     return predic_mat_binary
-    
+
+#Reduced Rank Regression solution (not the most computationally efficient approach but it is the direct mathematical derivation))
+#Not sure if we want to apply the regression to the normalized, moving average data, or the raw output. Same consideration when plotting.
+#RRR is a multivariable regression performed on the output data from all of the cells and generates coefficients for each cell. This is different to the   
+def rrr_formula(regress_mat_binary, output_data, r):
+    regress_mat_binary_transpose = np.transpose(regress_mat_binary)
+    reg_tp_reg_inv = np.linalg.inv(np.dot(regress_mat_binary_transpose, regress_mat_binary))
+    ordinary_lin_reg = np.dot(reg_tp_reg_inv, np.transpose(regress_mat_binary)) 
+    ordinary_lin_reg = np.dot(ordinary_lin_reg, np.transpose(output_data)) # the calculations up to this point have been for the OLS which we will modify to get the RRR
+    U, D, VT = np.linalg.svd(np.dot(regress_mat_binary,ordinary_lin_reg)) #Singular Value Decomposition 
+    VT_r = [[0 for x in range(np.shape(VT)[0])] for i in range(r)]
+    for i in range(r):
+        for j in range(np.shape(VT)[0]):
+            VT_r[i][j] = VT[i][j]
+    rrr_sol = np.dot(ordinary_lin_reg,np.transpose(VT_r))
+    rrr_sol = np.dot(rrr_sol, VT_r)
+    return rrr_sol
