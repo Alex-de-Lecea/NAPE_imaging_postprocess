@@ -79,8 +79,8 @@ fig.update_layout(height=600, width=1200)
 fig.update_xaxes(matches='x')
 
 #showing the output
-#fig.show()
-#print(olsres.summary())
+fig.show()
+print(olsres.summary())
 print(rrr_sol) #Each column corresponds to the coefficients of the given cell
-# print(np.corrcoef(rrr_ypred, moving_average_output_total[cell_number]))
-# print(np.corrcoef(ypred, moving_average_output_total[cell_number]))
+print(np.corrcoef(rrr_ypred, moving_average_output_total[cell_number]))
+print(np.corrcoef(ypred, moving_average_output_total[cell_number]))
