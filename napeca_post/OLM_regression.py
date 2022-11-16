@@ -40,6 +40,14 @@ regress_mat = predictor_matrix_gen.predic_mat_gen(read_data, size, predic_mat, c
 predic_mat_binary = predictor_matrix_gen.predic_mat_binary_init(output_size, lag_limit)
 regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, lag_limit)
 
+#plotting predictor matrix
+plt.rcParams["figure.figsize"] = [7.00, 3.50]
+plt.rcParams["figure.autolayout"] = True
+data2D = regress_mat_binary
+im = plt.imshow(data2D, cmap="copper_r")
+plt.colorbar(im)
+plt.show()
+
 predic_mat_size = np.shape(predic_mat)
 
 #Moving average calculations
