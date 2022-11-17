@@ -14,17 +14,13 @@ def predic_mat_binary_init(output_size, lag_limit):
     predic_mat  = [[0 for x in range(3*lag_limit)] for i in range(output_size[1])]
     return predic_mat
 
-def predic_mat_binary_init_updated(stimulus, output_size, lag_limit, withheld_stim):
-    for i in range(np.shape(stimulus)[0]):
-        if stimulus[i] == withheld_stim:
-            lag_limit_remove = lag_limit[i][1] - lag_limit[i][0]
-
+def predic_mat_binary_init_updated(output_size, lag_limit):
     total_sum = 0
     for i in range(np.shape(lag_limit)[0]):
         row_sum = lag_limit[i][1] - lag_limit[i][0]
         total_sum += row_sum
 
-    predic_mat  = [[0 for x in range(total_sum - lag_limit_remove)] for i in range(output_size[1])]
+    predic_mat  = [[0 for x in range(total_sum)] for i in range(output_size[1])]
     return predic_mat
 
 #finding the minimum value for fluorscence so that we can somewhat adjust our predicted output
@@ -118,14 +114,11 @@ def rrr_formula(regress_mat_binary, output_data, r):
     rrr_sol = np.dot(rrr_sol, VT_r)
     return rrr_sol
 
-def predic_mat_gen_binary_updated(read_data, size, predic_mat_binary, frequency, stimuli, lag_limit, withheld_stim):
+def predic_mat_gen_binary_updated(read_data, size, predic_mat_binary, frequency, stimuli, lag_limit):
     lag_sum = 0
     del_lag_limit = 0
     for i in range(np.shape(stimuli)[0]):
-        if stimuli[i] == (not withheld_stim):
-            del_lag_limit = (lag_limit[i][1] - lag_limit[i][0])
-        else:
-            stimuli[i] = None
+        del_lag_limit = (lag_limit[i][1] - lag_limit[i][0])
         for j in range(size[0]):
             predic_mat_size = np.shape(predic_mat_binary)
             if read_data[j][0] == stimuli[i]:
