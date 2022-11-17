@@ -1,8 +1,8 @@
-import scipy.io
+import scipy.io as sio
 import numpy as np
 
-mat = scipy.io.loadmat(r'C:\Users\Alex_dl\Documents\GitHub\NAPE_imaging_postprocess\napeca_post\sample_data\PL01\o1d1\Fall')
-mat = np.array(mat)
+mat = sio.loadmat(r'C:\Users\Alex_dl\Documents\GitHub\NAPE_imaging_postprocess\napeca_post\sample_data\PL01\o1d1\Fall')
 
-print(np.shape(mat))
-print(mat)
+print(type(mat))
+# print(mat.items())
+print(mat['redcell'])

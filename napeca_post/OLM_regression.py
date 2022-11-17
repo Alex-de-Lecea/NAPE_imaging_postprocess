@@ -17,6 +17,10 @@ cutoff = 20 #number of seconds after stimulus we wish to see the fluoresence. Hi
 cell_number = 3 #The cell we wish to see when plotting. A cell that is known to be more correlated to activity will have more accurate predicted curve
 lag_limit = 25 #number of samples after stimulus we wish to see the fluoresence for the binary regression matrix. Higher lag_limit produces much better results
 
+stimuli = ['plus', 'minus', 'licks']
+lag_limit_updated= [[0, 5], [0, 5], [0, 5]]
+withheld_stim = 'plus'
+
 #Load data
 read_data = pd.read_csv(practice_inputs)
 read_data = pd.DataFrame.to_numpy(read_data)
@@ -37,8 +41,12 @@ cutoff = cutoff * frequency #number of samples we wish to continue seeing the gc
 predic_mat = predictor_matrix_gen.predic_mat_init(output_size)
 regress_mat = predictor_matrix_gen.predic_mat_gen(read_data, size, predic_mat, cutoff, time_interval, frequency)
 
-predic_mat_binary = predictor_matrix_gen.predic_mat_binary_init(output_size, lag_limit)
-regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, lag_limit)
+#predic_mat_binary = predictor_matrix_gen.predic_mat_binary_init(output_size, lag_limit_updated)
+#regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, lag_limit)
+
+predic_mat_binary = predictor_matrix_gen.predic_mat_binary_init_updated(stimuli, output_size, lag_limit_updated, withheld_stim)
+regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary_updated(read_data, size, predic_mat_binary, frequency, stimuli, lag_limit_updated, withheld_stim)
+print(regress_mat_binary)
 
 #plotting predictor matrix
 plt.rcParams["figure.figsize"] = [7.00, 3.50]
@@ -62,26 +70,39 @@ ypred = olsres.predict(regress_mat_binary)
 
 #Reduced Rank Regression
 rrr_sol = predictor_matrix_gen.rrr_formula(regress_mat_binary, moving_average_output_total, 20)
+rrr_ypred = np.dot(predic_mat_binary, np.transpose(rrr_sol)[cell_number])
 
 #plot creation with plotly (we can only plot one given cell and its predicted output at a time)
 x = np.array(range(0, predic_mat_size[0]))
-pos_stim_arr = np.transpose(regress_mat_binary)[0]
-neg_stim_arr = np.transpose(regress_mat_binary)[lag_limit]
-lick_stim_arr = np.transpose(regress_mat_binary)[2*lag_limit]
-rrr_ypred = np.dot(predic_mat_binary, np.transpose(rrr_sol)[cell_number])
+# pos_stim_arr = np.transpose(regress_mat_binary)[0]
+# neg_stim_arr = np.transpose(regress_mat_binary)[lag_limit]
+# lick_stim_arr = np.transpose(regress_mat_binary)[2*lag_limit]
 
-fig = make_subplots(rows=5, cols=1,
-                    subplot_titles = ("CS+ Predicted", "CS- Predicted", "Licks Predicted", "Moving Average of Actual Fluoresence", "Predicted Fluoresence"),
+# fig = make_subplots(rows=5, cols=1,
+#                     subplot_titles = ("CS+ Predicted", "CS- Predicted", "Licks Predicted", "Moving Average of Actual Fluoresence", "Predicted Fluoresence"),
+#                     shared_yaxes=True,
+#                     horizontal_spacing=0.02)
+
+# fig['layout']['xaxis5']['title'] = "Sample number"
+# fig['layout']['yaxis3']['title'] = "Fluoresence"
+# fig.add_trace(go.Scattergl(x=x, y=(pos_stim_arr), mode='lines'), row=1, col=1)
+# fig.add_trace(go.Scattergl(x=x, y=(neg_stim_arr), mode='lines'), row=2, col=1)
+# fig.add_trace(go.Scattergl(x=x, y=(lick_stim_arr), mode='lines'), row=3, col=1)
+# fig.add_trace(go.Scattergl(x=x, y=(moving_average_output_total[cell_number]), mode='lines'), row=4, col=1) # here is where we choose whether to use moving average or raw
+# fig.add_trace(go.Scattergl(x=x, y=np.transpose(rrr_ypred), mode='lines'), row=5, col=1) #we took the tranpose of rrr_ypred for plotting purposes
+
+# fig.update_layout(height=600, width=1200)
+# fig.update_xaxes(matches='x')
+
+fig = make_subplots(rows=2, cols=1,
+                    subplot_titles = ("Moving Average of Actual Fluoresence", "Predicted Fluoresence"),
                     shared_yaxes=True,
                     horizontal_spacing=0.02)
 
-fig['layout']['xaxis5']['title'] = "Sample number"
-fig['layout']['yaxis3']['title'] = "Fluoresence"
-fig.add_trace(go.Scattergl(x=x, y=(pos_stim_arr), mode='lines'), row=1, col=1)
-fig.add_trace(go.Scattergl(x=x, y=(neg_stim_arr), mode='lines'), row=2, col=1)
-fig.add_trace(go.Scattergl(x=x, y=(lick_stim_arr), mode='lines'), row=3, col=1)
-fig.add_trace(go.Scattergl(x=x, y=(moving_average_output_total[cell_number]), mode='lines'), row=4, col=1) # here is where we choose whether to use moving average or raw
-fig.add_trace(go.Scattergl(x=x, y=np.transpose(rrr_ypred), mode='lines'), row=5, col=1) #we took the tranpose of rrr_ypred for plotting purposes
+fig['layout']['xaxis2']['title'] = "Sample number"
+fig['layout']['yaxis']['title'] = "Fluoresence"
+fig.add_trace(go.Scattergl(x=x, y=(moving_average_output_total[cell_number]), mode='lines'), row=1, col=1) # here is where we choose whether to use moving average or raw
+fig.add_trace(go.Scattergl(x=x, y=np.transpose(rrr_ypred), mode='lines'), row=2, col=1) #we took the tranpose of rrr_ypred for plotting purposes
 
 fig.update_layout(height=600, width=1200)
 fig.update_xaxes(matches='x')
