@@ -14,13 +14,16 @@ def predic_mat_binary_init(output_size, lag_limit):
     predic_mat  = [[0 for x in range(3*lag_limit)] for i in range(output_size[1])]
     return predic_mat
 
-def predic_mat_binary_init_updated(output_size, lag_limit):
+def predic_mat_binary_init_updated(stimulus, output_size, lag_limit, withheld_stim):
+    for i in range(np.shape(stimulus)[0]):
+        if stimulus[i] == withheld_stim:
+            remove_lag = lag_limit[i][1] - lag_limit[i][0]
     total_sum = 0
     for i in range(np.shape(lag_limit)[0]):
         row_sum = lag_limit[i][1] - lag_limit[i][0]
         total_sum += row_sum
 
-    predic_mat  = [[0 for x in range(total_sum)] for i in range(output_size[1])]
+    predic_mat  = [[0 for x in range(total_sum - remove_lag)] for i in range(output_size[1])]
     return predic_mat
 
 #finding the minimum value for fluorscence so that we can somewhat adjust our predicted output
