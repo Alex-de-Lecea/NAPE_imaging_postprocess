@@ -44,7 +44,7 @@ regress_mat = predictor_matrix_gen.predic_mat_gen(read_data, size, predic_mat, c
 #predic_mat_binary = predictor_matrix_gen.predic_mat_binary_init(output_size, lag_limit_updated)
 #regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, lag_limit)
 
-predic_mat_binary = predictor_matrix_gen.predic_mat_binary_init_updated(output_size, lag_limit_updated)
+predic_mat_binary = predictor_matrix_gen.predic_mat_binary_init_updated(stimuli, output_size, lag_limit_updated, None)
 regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary_updated(read_data, size, predic_mat_binary, frequency, stimuli, lag_limit_updated)
 print(regress_mat_binary)
 

@@ -16,6 +16,7 @@ def predic_mat_binary_init(output_size, lag_limit):
 
 def predic_mat_binary_init_updated(stimulus, output_size, lag_limit, withheld_stim):
     for i in range(np.shape(stimulus)[0]):
+        remove_lag = 0
         if stimulus[i] == withheld_stim:
             remove_lag = lag_limit[i][1] - lag_limit[i][0]
     total_sum = 0
