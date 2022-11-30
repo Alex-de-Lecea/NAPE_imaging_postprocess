@@ -10,21 +10,20 @@ def predic_mat_init(output_size):
     return predic_mat
 
 #initializes matrix for the binary offset, right now it only contains 0's
-def predic_mat_binary_init(output_size, lag_limit):
-    predic_mat  = [[0 for x in range(3*lag_limit)] for i in range(output_size[1])]
-    return predic_mat
-
-def predic_mat_binary_init_updated(stimulus, output_size, lag_limit, withheld_stim):
+def predic_mat_binary_init(stimulus, output_size, lag_limit, withheld_stim):
     for i in range(np.shape(stimulus)[0]):
         remove_lag = 0
         if stimulus[i] == withheld_stim:
             remove_lag = lag_limit[i][1] - lag_limit[i][0]
     total_sum = 0
     for i in range(np.shape(lag_limit)[0]):
-        row_sum = lag_limit[i][1] - lag_limit[i][0]
-        total_sum += row_sum
-
-    predic_mat  = [[0 for x in range(total_sum - remove_lag)] for i in range(output_size[1])]
+        col_sum = lag_limit[i][1] - lag_limit[i][0]
+        total_sum += col_sum
+    
+    if type(output_size) == int:
+        predic_mat  = [[0 for x in range(total_sum - remove_lag)] for i in range(output_size)]
+    else:
+        predic_mat  = [[0 for x in range(total_sum - remove_lag)] for i in range(output_size[1])]
     return predic_mat
 
 #finding the minimum value for fluorscence so that we can somewhat adjust our predicted output
@@ -79,28 +78,6 @@ def predic_mat_gen(read_data, size, predic_mat, cutoff, time_interval, frequency
 # Creates the final predictor matrix with binary offset. When a stimulus occurs, a one will be placed at that time. 
 # Additionally, a diagonal of one's will be created for however many columns we determined in the lag_limit. 
 # This will be used for our reduced rank regression 
-def predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, lag_limit):
-    for i in range(size[0]):
-        predic_mat_size = np.shape(predic_mat_binary)
-        if read_data[i][0] == "plus":
-            pos_time = read_data[i][1]
-            pos_samp = int(pos_time * frequency)
-            for k in range(lag_limit):
-                if (k+pos_samp) < predic_mat_size[0]:
-                    predic_mat_binary[pos_samp+k][k] = 1
-        elif read_data[i][0] == "minus":
-            neg_time = read_data[i][1]
-            neg_samp = int(neg_time * frequency)
-            for k in range(lag_limit):
-                if (k+neg_samp) < predic_mat_size[0]:
-                    predic_mat_binary[neg_samp+k][lag_limit+k] = 1
-        elif read_data[i][0] == "licks":
-            lick_time = read_data[i][1]
-            lick_samp = int(lick_time * frequency)
-            for k in range(lag_limit):
-                if (k+lick_samp) < predic_mat_size[0]:
-                    predic_mat_binary[lick_samp+k][2*lag_limit+k] = 1
-    return predic_mat_binary
 
 #Reduced Rank Regression solution (not the most computationally efficient approach but it is the direct mathematical derivation))
 #Not sure if we want to apply the regression to the normalized, moving average data, or the raw output. Same consideration when plotting.
@@ -118,7 +95,7 @@ def rrr_formula(regress_mat_binary, output_data, r):
     rrr_sol = np.dot(rrr_sol, VT_r)
     return rrr_sol
 
-def predic_mat_gen_binary_updated(read_data, size, predic_mat_binary, frequency, stimuli, lag_limit):
+def predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, stimuli, lag_limit):
     lag_sum = 0
     del_lag_limit = 0
     for i in range(np.shape(stimuli)[0]):
@@ -131,5 +108,21 @@ def predic_mat_gen_binary_updated(read_data, size, predic_mat_binary, frequency,
                 for k in range(del_lag_limit):
                     if (k+stim_samp) < predic_mat_size[0]:
                         predic_mat_binary[stim_samp+k][lag_sum + k] = 1
+        lag_sum = lag_sum + del_lag_limit
+    return predic_mat_binary
+
+def predic_mat_gen_binary_dic(read_data, predic_mat_binary, frequency, stimuli, lag_limit):
+    lag_sum = 0
+    del_lag_limit = 0
+    for i in range(np.shape(stimuli)[0]):
+        del_lag_limit = (lag_limit[i][1] - lag_limit[i][0])
+        predic_mat_size = np.shape(predic_mat_binary)
+        if stimuli[i] in read_data.keys():
+            stim_samp = read_data[stimuli[i]] * frequency
+            for j in range(np.shape(read_data[stimuli[i]])[0]):
+                stim_samp_element = int(stim_samp[j][0])
+                for k in range(del_lag_limit):
+                    if (k+stim_samp_element) < predic_mat_size[0]:
+                        predic_mat_binary[stim_samp_element+k][lag_sum + k] = 1
         lag_sum = lag_sum + del_lag_limit
     return predic_mat_binary
