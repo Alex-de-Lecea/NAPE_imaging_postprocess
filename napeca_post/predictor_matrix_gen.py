@@ -95,14 +95,14 @@ def rrr_formula(regress_mat_binary, output_data, r):
     rrr_sol = np.dot(rrr_sol, VT_r)
     return rrr_sol
 
-def predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, stimuli, lag_limit):
+def predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, stimuli, lag_limit, withheld_stim):
     lag_sum = 0
     del_lag_limit = 0
     for i in range(np.shape(stimuli)[0]):
         del_lag_limit = (lag_limit[i][1] - lag_limit[i][0])
         for j in range(size[0]):
             predic_mat_size = np.shape(predic_mat_binary)
-            if read_data[j][0] == stimuli[i]:
+            if read_data[j][0] == (stimuli[i] and not withheld_stim):
                 stim_time = read_data[j][1]
                 stim_samp = int(stim_time * frequency)
                 for k in range(del_lag_limit):
@@ -111,12 +111,14 @@ def predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, stimuli
         lag_sum = lag_sum + del_lag_limit
     return predic_mat_binary
 
-def predic_mat_gen_binary_dic(read_data, predic_mat_binary, frequency, stimuli, lag_limit):
+def predic_mat_gen_binary_dic(read_data, predic_mat_binary, frequency, stimuli, lag_limit, withheld_stim):
     lag_sum = 0
     del_lag_limit = 0
     for i in range(np.shape(stimuli)[0]):
         del_lag_limit = (lag_limit[i][1] - lag_limit[i][0])
         predic_mat_size = np.shape(predic_mat_binary)
+        if stimuli[i] == withheld_stim:
+            stimuli[i] = None
         if stimuli[i] in read_data.keys():
             stim_samp = read_data[stimuli[i]] * frequency
             for j in range(np.shape(read_data[stimuli[i]])[0]):
