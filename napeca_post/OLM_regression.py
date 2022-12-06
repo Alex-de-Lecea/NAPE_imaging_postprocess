@@ -10,11 +10,11 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 #User variables
-# practice_inputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/event_times_VJ_OFCVTA_7_260_D6_trained.csv')
-# practice_outputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/VJ_OFCVTA_7_260_D6_neuropil_corrected_signals_15_50_beta_0.8.csv')
+practice_inputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/event_times_VJ_OFCVTA_7_260_D6_trained.csv')
+practice_outputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/VJ_OFCVTA_7_260_D6_neuropil_corrected_signals_15_50_beta_0.8.csv')
 
-practice_inputs = sio.loadmat(r'C:\Users\Alex_dl\Documents\GitHub\NAPE_imaging_postprocess\napeca_post\sample_data\PL01\o1d1\pl01o1d1events')
-practice_outputs = sio.loadmat(r'C:\Users\Alex_dl\Documents\GitHub\NAPE_imaging_postprocess\napeca_post\sample_data\PL01\o1d1\Fall')
+# practice_inputs = sio.loadmat(r'C:\Users\Alex_dl\Documents\GitHub\NAPE_imaging_postprocess\napeca_post\sample_data\PL01\o1d1\pl01o1d1events')
+# practice_outputs = sio.loadmat(r'C:\Users\Alex_dl\Documents\GitHub\NAPE_imaging_postprocess\napeca_post\sample_data\PL01\o1d1\Fall')
 
 
 frequency = 15
@@ -23,13 +23,13 @@ mov_avg_int = 20 #the size of the interval we wish to use for our moving average
 cell_number = 3 #The cell we wish to see when plotting. A cell that is known to be more correlated to activity will have more accurate predicted curve
 reduced_rank = 20 #the limit of ranks we wish to choose when performing our rrr. Lower ranks remove more noise but can show less of the actual data as well
 
-# stimuli = ['plus', 'minus', 'licks']
-# lag_limit= [[0, 5], [0, 5], [0, 5]]
+stimuli = ['plus', 'minus', 'licks']
+lag_limit= [[0, 5], [0, 5], [0, 5]]
 
-stimuli = ['cue', 'cue1', 'cue2', 'cue2r', 'cue2u', 'cue3' ,'reward']
-lag_limit = [[0, 75], [0, 75], [0, 75], [0, 75], [0, 75], [0, 75], [0, 75]]
+# stimuli = ['cue', 'cue1', 'cue2', 'cue2r', 'cue2u', 'cue3' ,'reward']
+# lag_limit = [[0, 5], [0, 5], [0, 5], [0, 5], [0, 5], [0, 5], [0, 5]]
 
-withheld_stim = None
+withheld_stim = 'licks'
 
 # Load data
 if (type(practice_inputs) and type(practice_outputs)) == dict:
