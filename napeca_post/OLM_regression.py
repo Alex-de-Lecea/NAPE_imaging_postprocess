@@ -27,9 +27,11 @@ stimuli = ['plus', 'minus', 'licks']
 lag_limit= [[0, 5], [0, 5], [0, 5]]
 
 # stimuli = ['cue', 'cue1', 'cue2', 'cue2r', 'cue2u', 'cue3' ,'reward']
-# lag_limit = [[0, 5], [0, 5], [0, 5], [0, 5], [0, 5], [0, 5], [0, 5]]
+# lag_limit = [[0, 75], [0, 75], [0, 75], [0, 75], [0, 75], [0, 75], [0, 75]]
 
-withheld_stim = 'licks'
+withheld_stim = None
+lambda_stim = None
+lambda_coeff = 0.5
 
 # Load data
 if (type(practice_inputs) and type(practice_outputs)) == dict:
@@ -58,7 +60,7 @@ else:
 
     #predictor matrix initialization and generation
     predic_mat_binary = predictor_matrix_gen.predic_mat_binary_init(stimuli, output_size, lag_limit, withheld_stim)
-    regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, stimuli, lag_limit, withheld_stim)
+    regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, stimuli, lag_limit, withheld_stim, lambda_stim, lambda_coeff)
 
 #moving average calculations
 moving_average_output = predictor_matrix_gen.moving_average(output_data[cell_number], mov_avg_int) #moving average of the output of one cell (this is fine for testing but we are going to eventually use the matrix of all of the cell activity)
@@ -85,23 +87,23 @@ plt.show()
 predic_mat_size = np.shape(predic_mat_binary)
 
 #plot creation with plotly (we can only plot one given cell and its predicted output at a time)
-x = np.array(range(0, predic_mat_size[0]))
+# x = np.array(range(0, predic_mat_size[0]))
 
-fig = make_subplots(rows=2, cols=1,
-                    subplot_titles = ("Moving Average of Actual Fluoresence", "Predicted Fluoresence"),
-                    shared_yaxes=True,
-                    horizontal_spacing=0.02)
+# fig = make_subplots(rows=2, cols=1,
+#                     subplot_titles = ("Moving Average of Actual Fluoresence", "Predicted Fluoresence"),
+#                     shared_yaxes=True,
+#                     horizontal_spacing=0.02)
 
-fig['layout']['xaxis2']['title'] = "Sample number"
-fig['layout']['yaxis']['title'] = "Fluoresence"
-fig.add_trace(go.Scattergl(x=x, y=(moving_average_output_total[cell_number]), mode='lines'), row=1, col=1) # here is where we choose whether to use moving average or raw
-fig.add_trace(go.Scattergl(x=x, y=np.transpose(rrr_ypred), mode='lines'), row=2, col=1) #we took the tranpose of rrr_ypred for plotting purposes
+# fig['layout']['xaxis2']['title'] = "Sample number"
+# fig['layout']['yaxis']['title'] = "Fluoresence"
+# fig.add_trace(go.Scattergl(x=x, y=(moving_average_output_total[cell_number]), mode='lines'), row=1, col=1) # here is where we choose whether to use moving average or raw
+# fig.add_trace(go.Scattergl(x=x, y=np.transpose(rrr_ypred), mode='lines'), row=2, col=1) #we took the tranpose of rrr_ypred for plotting purposes
 
-fig.update_layout(height=600, width=1200)
-fig.update_xaxes(matches='x')
+# fig.update_layout(height=600, width=1200)
+# fig.update_xaxes(matches='x')
 
-#showing the output
-fig.show()
+# #showing the output
+# fig.show()
 print(olsres.summary())
 print(rrr_sol) #Each column corresponds to the coefficients of the given cell
 print(np.corrcoef(rrr_ypred, moving_average_output_total[cell_number]))

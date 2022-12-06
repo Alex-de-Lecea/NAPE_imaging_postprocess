@@ -95,7 +95,7 @@ def rrr_formula(regress_mat_binary, output_data, r):
     rrr_sol = np.dot(rrr_sol, VT_r)
     return rrr_sol
 
-def predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, stimuli, lag_limit, withheld_stim):
+def predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, stimuli, lag_limit, withheld_stim, lambda_stim, lambda_coeff):
     lag_sum = 0
     del_lag_limit = 0
     for i in range(np.shape(stimuli)[0]):
@@ -104,29 +104,49 @@ def predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, stimuli
             predic_mat_size = np.shape(predic_mat_binary)
             if stimuli[i] == withheld_stim:
                 stimuli[i] = None
+            elif stimuli[i] == lambda_stim:
+                stimuli[i] == None
             if read_data[j][0] == stimuli[i]:
                 stim_time = read_data[j][1]
                 stim_samp = int(stim_time * frequency)
                 for k in range(del_lag_limit):
                     if (k+stim_samp) < predic_mat_size[0]:
                         predic_mat_binary[stim_samp+k][lag_sum + k] = 1
+            elif read_data[j][0] == lambda_stim:
+                stim_time = read_data[j][1]
+                stim_samp = int(stim_time * frequency)
+                for k in range(del_lag_limit):
+                    if (k+stim_samp) < predic_mat_size[0]:
+                        predic_mat_binary[stim_samp+k][lag_sum + k] = lambda_coeff
         lag_sum = lag_sum + del_lag_limit
     return predic_mat_binary
 
-def predic_mat_gen_binary_dic(read_data, predic_mat_binary, frequency, stimuli, lag_limit, withheld_stim):
+def predic_mat_gen_binary_dic(read_data, predic_mat_binary, frequency, stimuli, lag_limit, withheld_stim, lambda_stim, lambda_coeff):
     lag_sum = 0
     del_lag_limit = 0
     for i in range(np.shape(stimuli)[0]):
+        stim_samp_element = 0
+        lambda_samp_element = 0
         del_lag_limit = (lag_limit[i][1] - lag_limit[i][0])
         predic_mat_size = np.shape(predic_mat_binary)
         if stimuli[i] == withheld_stim:
             stimuli[i] = None
+        elif stimuli[i] == lambda_stim:
+            stimuli[i] = None
         if stimuli[i] in read_data.keys():
             stim_samp = read_data[stimuli[i]] * frequency
+        elif lambda_stim in read_data.keys():
+            lambda_samp = read_data[lambda_stim] * frequency
             for j in range(np.shape(read_data[stimuli[i]])[0]):
                 stim_samp_element = int(stim_samp[j][0])
-                for k in range(del_lag_limit):
-                    if (k+stim_samp_element) < predic_mat_size[0]:
-                        predic_mat_binary[stim_samp_element+k][lag_sum + k] = 1
+                lambda_samp_element = int(lambda_samp[j][0])
+                if stim_samp_element == 0:
+                    for k in range(del_lag_limit):
+                        if (k+lambda_samp_element) < predic_mat_size[0]:
+                            predic_mat_binary[lambda_samp_element+k][lag_sum + k] = lambda_coeff
+                elif lambda_samp_element == 0:
+                    for k in range(del_lag_limit):
+                        if (k+stim_samp_element) < predic_mat_size[0]:
+                            predic_mat_binary[stim_samp_element+k][lag_sum + k] = 1
         lag_sum = lag_sum + del_lag_limit
     return predic_mat_binary
