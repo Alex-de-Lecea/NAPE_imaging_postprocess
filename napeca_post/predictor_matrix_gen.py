@@ -125,26 +125,22 @@ def predic_mat_gen_binary_dic(read_data, predic_mat_binary, frequency, stimuli, 
     lag_sum = 0
     del_lag_limit = 0
     for i in range(np.shape(stimuli)[0]):
-        stim_samp_element = 0
-        lambda_samp_element = 0
+        modify = False
         del_lag_limit = (lag_limit[i][1] - lag_limit[i][0])
         predic_mat_size = np.shape(predic_mat_binary)
         if stimuli[i] == withheld_stim:
             stimuli[i] = None
         elif stimuli[i] == lambda_stim:
-            stimuli[i] = None
+            modify = True
         if stimuli[i] in read_data.keys():
-            stim_samp = read_data[stimuli[i]] * frequency
-        elif lambda_stim in read_data.keys():
-            lambda_samp = read_data[lambda_stim] * frequency
+            stim_samp = read_data[stimuli[i]] * frequency # stim samp is a 2d array with each entry a row
             for j in range(np.shape(read_data[stimuli[i]])[0]):
                 stim_samp_element = int(stim_samp[j][0])
-                lambda_samp_element = int(lambda_samp[j][0])
-                if stim_samp_element == 0:
+                if modify == True:
                     for k in range(del_lag_limit):
-                        if (k+lambda_samp_element) < predic_mat_size[0]:
-                            predic_mat_binary[lambda_samp_element+k][lag_sum + k] = lambda_coeff
-                elif lambda_samp_element == 0:
+                        if (k+stim_samp_element) < predic_mat_size[0]:
+                            predic_mat_binary[stim_samp_element+k][lag_sum + k] = lambda_coeff
+                else:
                     for k in range(del_lag_limit):
                         if (k+stim_samp_element) < predic_mat_size[0]:
                             predic_mat_binary[stim_samp_element+k][lag_sum + k] = 1

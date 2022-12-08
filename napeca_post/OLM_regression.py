@@ -10,28 +10,28 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 #User variables
-practice_inputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/event_times_VJ_OFCVTA_7_260_D6_trained.csv')
-practice_outputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/VJ_OFCVTA_7_260_D6_neuropil_corrected_signals_15_50_beta_0.8.csv')
+# practice_inputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/event_times_VJ_OFCVTA_7_260_D6_trained.csv')
+# practice_outputs = os.path.abspath('./napeca_post/sample_data/VJ_OFCVTA_7_260_D6/VJ_OFCVTA_7_260_D6_neuropil_corrected_signals_15_50_beta_0.8.csv')
+# frequency = 5
 
-# practice_inputs = sio.loadmat(r'C:\Users\Alex_dl\Documents\GitHub\NAPE_imaging_postprocess\napeca_post\sample_data\PL01\o1d1\pl01o1d1events')
-# practice_outputs = sio.loadmat(r'C:\Users\Alex_dl\Documents\GitHub\NAPE_imaging_postprocess\napeca_post\sample_data\PL01\o1d1\Fall')
-
-
+practice_inputs = sio.loadmat(r'C:\Users\Alex_dl\Documents\GitHub\NAPE_imaging_postprocess\napeca_post\sample_data\PL01\o1d1\pl01o1d1events')
+practice_outputs = sio.loadmat(r'C:\Users\Alex_dl\Documents\GitHub\NAPE_imaging_postprocess\napeca_post\sample_data\PL01\o1d1\Fall')
 frequency = 15
+
 time_interval = round(1/(frequency), 1)
 mov_avg_int = 20 #the size of the interval we wish to use for our moving average calculations
 cell_number = 3 #The cell we wish to see when plotting. A cell that is known to be more correlated to activity will have more accurate predicted curve
 reduced_rank = 20 #the limit of ranks we wish to choose when performing our rrr. Lower ranks remove more noise but can show less of the actual data as well
 
-stimuli = ['plus', 'minus', 'licks']
-lag_limit= [[0, 5], [0, 5], [0, 5]]
+# stimuli = ['plus', 'minus', 'licks']
+# lag_limit= [[0, 5], [0, 5], [0, 5]]
 
-# stimuli = ['cue', 'cue1', 'cue2', 'cue2r', 'cue2u', 'cue3' ,'reward']
-# lag_limit = [[0, 75], [0, 75], [0, 75], [0, 75], [0, 75], [0, 75], [0, 75]]
+stimuli = ['cue', 'cue1', 'cue2', 'cue2r', 'cue2u', 'cue3' ,'reward']
+lag_limit = [[0, 75], [0, 75], [0, 75], [0, 75], [0, 75], [0, 75], [0, 75]]
 
-withheld_stim = None
+withheld_stim = 'reward'
 lambda_stim = None
-lambda_coeff = 0.5
+lambda_coeff = 0.1
 
 # Load data
 if (type(practice_inputs) and type(practice_outputs)) == dict:
@@ -44,7 +44,7 @@ if (type(practice_inputs) and type(practice_outputs)) == dict:
 
     #predictor matrix initialization and generation
     predic_mat_binary = predictor_matrix_gen.predic_mat_binary_init(stimuli, output_size, lag_limit, withheld_stim)
-    regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary_dic(read_data, predic_mat_binary, frequency, stimuli, lag_limit, withheld_stim)
+    regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary_dic(read_data, predic_mat_binary, frequency, stimuli, lag_limit, withheld_stim, lambda_stim, lambda_coeff)
 
 else:
     #data inputs 
@@ -87,23 +87,23 @@ plt.show()
 predic_mat_size = np.shape(predic_mat_binary)
 
 #plot creation with plotly (we can only plot one given cell and its predicted output at a time)
-# x = np.array(range(0, predic_mat_size[0]))
+x = np.array(range(0, predic_mat_size[0]))
 
-# fig = make_subplots(rows=2, cols=1,
-#                     subplot_titles = ("Moving Average of Actual Fluoresence", "Predicted Fluoresence"),
-#                     shared_yaxes=True,
-#                     horizontal_spacing=0.02)
+fig = make_subplots(rows=2, cols=1,
+                    subplot_titles = ("Moving Average of Actual Fluoresence", "Predicted Fluoresence"),
+                    shared_yaxes=True,
+                    horizontal_spacing=0.02)
 
-# fig['layout']['xaxis2']['title'] = "Sample number"
-# fig['layout']['yaxis']['title'] = "Fluoresence"
-# fig.add_trace(go.Scattergl(x=x, y=(moving_average_output_total[cell_number]), mode='lines'), row=1, col=1) # here is where we choose whether to use moving average or raw
-# fig.add_trace(go.Scattergl(x=x, y=np.transpose(rrr_ypred), mode='lines'), row=2, col=1) #we took the tranpose of rrr_ypred for plotting purposes
+fig['layout']['xaxis2']['title'] = "Sample number"
+fig['layout']['yaxis']['title'] = "Fluoresence"
+fig.add_trace(go.Scattergl(x=x, y=(moving_average_output_total[cell_number]), mode='lines'), row=1, col=1) # here is where we choose whether to use moving average or raw
+fig.add_trace(go.Scattergl(x=x, y=np.transpose(rrr_ypred), mode='lines'), row=2, col=1) #we took the tranpose of rrr_ypred for plotting purposes
 
-# fig.update_layout(height=600, width=1200)
-# fig.update_xaxes(matches='x')
+fig.update_layout(height=600, width=1200)
+fig.update_xaxes(matches='x')
 
-# #showing the output
-# fig.show()
+#showing the output
+fig.show()
 print(olsres.summary())
 print(rrr_sol) #Each column corresponds to the coefficients of the given cell
 print(np.corrcoef(rrr_ypred, moving_average_output_total[cell_number]))
