@@ -24,12 +24,12 @@ cell_number = 3 #The cell we wish to see when plotting. A cell that is known to 
 reduced_rank = 20 #the limit of ranks we wish to choose when performing our rrr. Lower ranks remove more noise but can show less of the actual data as well
 
 # stimuli = ['plus', 'minus', 'licks']
-# lag_limit= [[0, 5], [0, 5], [0, 5]]
+# lag_limit = [[0, 5], [0, 5], [0, 5]]
 
 stimuli = ['cue', 'cue1', 'cue2', 'cue2r', 'cue2u', 'cue3' ,'reward']
 lag_limit = [[0, 75], [0, 75], [0, 75], [0, 75], [0, 75], [0, 75], [0, 75]]
 
-withheld_stim = 'reward'
+withheld_stim = None
 lambda_stim = None
 lambda_coeff = 0.1
 
@@ -62,18 +62,31 @@ else:
     predic_mat_binary = predictor_matrix_gen.predic_mat_binary_init(stimuli, output_size, lag_limit, withheld_stim)
     regress_mat_binary = predictor_matrix_gen.predic_mat_gen_binary(read_data, size, predic_mat_binary, frequency, stimuli, lag_limit, withheld_stim, lambda_stim, lambda_coeff)
 
-#moving average calculations
+#moving average calculations (basic normalization)
 moving_average_output = predictor_matrix_gen.moving_average(output_data[cell_number], mov_avg_int) #moving average of the output of one cell (this is fine for testing but we are going to eventually use the matrix of all of the cell activity)
 moving_average_output_total = predictor_matrix_gen.moving_average_mat(output_data, mov_avg_int)
 min = np.amin(moving_average_output)
 
+#zscore normalization (more advanced)
+# full data including the spikes (this is not the way to do it but we will try it for now; in the future we want our mean and SD to be calculated on a baseline section without activity)
+column_mean = [sum(idx) / len(idx) for idx in zip(*output_data)]
+mean_full = sum(column_mean) / len(column_mean)
+std_full = np.std(output_data, ddof = 1)
+
+z_score_norm_output = output_data- mean_full
+z_score_norm_output= z_score_norm_output * (1/std_full)
+
+#zscore normalization (Charles' Function)
+baseline_samples = np.arange(0, output_data.shape[-1])
+charles_z_score_output = predictor_matrix_gen.zscore_norm(output_data, baseline_samples)
+
 #1-D Linear regression (takes the output of one cell and fits our predictor matrix to it)
-olsmod = sm.OLS((moving_average_output - min), regress_mat_binary)
+olsmod = sm.OLS((charles_z_score_output[cell_number]), regress_mat_binary)
 olsres = olsmod.fit()
 ypred = olsres.predict(regress_mat_binary)
 
 #Reduced Rank Regression Calculations 
-rrr_sol = predictor_matrix_gen.rrr_formula(regress_mat_binary, moving_average_output_total, reduced_rank)
+rrr_sol = predictor_matrix_gen.rrr_formula(regress_mat_binary, charles_z_score_output, reduced_rank)
 rrr_ypred = np.dot(predic_mat_binary, np.transpose(rrr_sol)[cell_number])
 
 #plotting predictor matrix
@@ -96,7 +109,7 @@ fig = make_subplots(rows=2, cols=1,
 
 fig['layout']['xaxis2']['title'] = "Sample number"
 fig['layout']['yaxis']['title'] = "Fluoresence"
-fig.add_trace(go.Scattergl(x=x, y=(moving_average_output_total[cell_number]), mode='lines'), row=1, col=1) # here is where we choose whether to use moving average or raw
+fig.add_trace(go.Scattergl(x=x, y=(charles_z_score_output[cell_number]), mode='lines'), row=1, col=1) # here is where we choose whether to use moving average or raw
 fig.add_trace(go.Scattergl(x=x, y=np.transpose(rrr_ypred), mode='lines'), row=2, col=1) #we took the tranpose of rrr_ypred for plotting purposes
 
 fig.update_layout(height=600, width=1200)
@@ -106,5 +119,5 @@ fig.update_xaxes(matches='x')
 fig.show()
 print(olsres.summary())
 print(rrr_sol) #Each column corresponds to the coefficients of the given cell
-print(np.corrcoef(rrr_ypred, moving_average_output_total[cell_number]))
-print(np.corrcoef(ypred, moving_average_output_total[cell_number]))
+print(np.corrcoef(rrr_ypred, charles_z_score_output[cell_number]))
+print(np.corrcoef(ypred, charles_z_score_output[cell_number]))

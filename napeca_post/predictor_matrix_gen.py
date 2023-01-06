@@ -3,6 +3,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+from sklearn.preprocessing import StandardScaler
 
 #initializing predictor matrix for simple, linear, formula-fitted GCAMP expression
 def predic_mat_init(output_size):
@@ -49,6 +50,17 @@ def moving_average_mat(data, desired_interval):
     for i in range(np.shape(data)[0]):
         data[i] = moving_average(data[i], desired_interval)
     return data
+
+def zscore_norm(data, baseline_samples):
+    scaler = StandardScaler()
+    # note: have to reshape/transpose so that samples is in first dimension for scikitlearn
+    if len(data.shape) == 1:
+        scaler.fit(data[baseline_samples].reshape(-1, 1))
+        scaled_data = scaler.transform(data.reshape(-1, 1))
+    else:
+        scaler.fit(data[..., baseline_samples].T)
+        scaled_data = scaler.transform(data.T).T
+    return scaled_data
 
 # Creates the final predictor matrix which we will run through the regression. This function creates the
 # predictor matrix for the more simple, formula-fitted GCAMP expression 
